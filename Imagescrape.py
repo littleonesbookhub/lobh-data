@@ -55,25 +55,42 @@ for index, row in df.iterrows():
     #print(list_allbooks)
      
     #get the author
+    booklist=[]
     children = parent.findChildren(recursive=False)
-    print(len(children))
     for child in children:
+        authorname = ""
+        descriptiontext = ""
         span = child.select("a > span") 
-        print(span)
+        #print(span)
         if span: 
-            print(span[0].text)
+            #print(span[0].text)
+            authorname=span[0].text
         
-        #get image
+        # get description
+       
+        description= child.select("span > span")
+        #print(description[0].text)
+        if description: 
+            descriptiontext = description[0].text
+        booklist.append({
+            "author": authorname,
+            "description": descriptiontext
+            })
+        
+    print(booklist)
+    print(len(booklist))
+    
+    print("The list is complete..Please choose your option", list(range(1,len(booklist)+1)))
+    userchoicedesc= int(input("Enter your choice"))
+    print(booklist[userchoicedesc])
+    
+
+#testcode
+ #get image
         #thumbnail = child.find("img")
         #print(len(thumbnail))
         #print(thumbnail)
-
-        # get description
-        description= child.select("span > span")
-        print(description[0].text)
-        user_input = input("Press any key to continue ...")
-        #user_input = input("Press Y or N if the title and author match")
-        #if(input=="Y"):
+       
 
 
 
