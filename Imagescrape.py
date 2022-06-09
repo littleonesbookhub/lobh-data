@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import requests
 import urllib.parse
 from urllib.parse import quote
+import re
 
 #open the website
 
@@ -25,10 +26,61 @@ df= pd.DataFrame(data,columns=['Title'])
 df = df.reset_index() # make sure indexes pair with number of rows
 header = ['Title', 'Author', 'Description']
 
-with open('data.csv', 'w', encoding='UTF8', newline='') as f:
-    writer = csv.writer(f)
+def get_book_metadata(parent, title):
+    booklist=[]
+    children = parent.findChildren(recursive=False)
+    for child in children:
+        authorname = ""
+        descriptiontext = ""
+        span = child.select("a > span") 
+    
+        #get the author
+        if span: 
+            #print(span[0].text)
+            authorname=span[0].text
+        
+        # get description
+    
+        description= child.select("span > span")
+        #print(description[0].text)
+        if description: 
+            descriptiontext = description[0].text
+        booklist.append({
+            "author": authorname,
+            "description": descriptiontext
+            })
+    [print(i+1, x) for i, x in enumerate(booklist)]   #list comprehension
+    
+    #Entering the user's choice
+    bookrange = range(1,len(booklist)+1)
+    print("The list is complete..Please choose your option.Input 11 to skip", list(bookrange))
+    userchoicedesc= int(input("Enter your choice"))
+    if(userchoicedesc==11):
+        data = [title, "None", "None"]
+        reader=csv.reader(data,delimiter=':', quoting=csv.QUOTE_NONE)
+        return reader
+
+    if(userchoicedesc in bookrange):
+        print(booklist[userchoicedesc-1])
+    
+    
+
+    else:
+        print("Out of range")
+# converting into CSV files
+    data = [title, booklist[userchoicedesc-1]["author"], booklist[userchoicedesc-1]["description"]]
+    reader=csv.reader(data,delimiter=':', quoting=csv.QUOTE_NONE)
+    return reader
+
+with open('data.csv', 'w', encoding='UTF8', newline='') as csv_file:
+    writer = csv.writer(csv_file)
     writer.writerow(header)
+
+    start_index = int(input("Enter the start index: "))
+
     for index, row in df.iterrows():
+        if index < (start_index-1):
+            continue
     # search on internet based on title, convert it into lowercase
     # extract author name and store it
         title = row['Title'].lower()
@@ -41,9 +93,9 @@ with open('data.csv', 'w', encoding='UTF8', newline='') as f:
         #print(soup)
         
         #test code
-        f = open("index.html", "w")
-        f.write(str(soup))
-        f.close()
+        html_file = open("index.html", "w")
+        html_file.write(str(soup))
+        html_file.close()
         #exit()
 
         #Lists all the books with class ul(openlibrabry)
@@ -55,69 +107,29 @@ with open('data.csv', 'w', encoding='UTF8', newline='') as f:
                 #print(anchors[1].text)
             
         #Lists all the books from Google
-        text_encoded = quote(title)
-        #print(text_encoded)
+        text_encoded = title
+        #check
+        print(text_encoded)
+        text_encoded = text_encoded.replace(" ", "%20")
         parent = soup.find("div",attrs={"data-async-context": "query:"+text_encoded})
-        #print(list_allbooks)
+        book_metadata=get_book_metadata(parent, title)
+        if(book_metadata!= None):
+            writer.writerow(book_metadata)
+            csv_file.flush()
+
+
         
-        #get the author
-        booklist=[]
-        children = parent.findChildren(recursive=False)
-        for child in children:
-            authorname = ""
-            descriptiontext = ""
-            span = child.select("a > span") 
-            #print(span)
-            if span: 
-                #print(span[0].text)
-                authorname=span[0].text
+
+    #testcode
+    #get image
+            #thumbnail = child.find("img")
+            #print(len(thumbnail))
+            #print(thumbnail)
+        
+
+
+
             
-            # get description
         
-            description= child.select("span > span")
-            #print(description[0].text)
-            if description: 
-                descriptiontext = description[0].text
-            booklist.append({
-                "author": authorname,
-                "description": descriptiontext
-                })
-        [print(i+1, x) for i, x in enumerate(booklist)]   #list comprehension
         
-        #Entering the user's choice
-        bookrange = range(1,len(booklist)+1)
-        print("The list is complete..Please choose your option.Input 11 to skip", list(bookrange))
-        userchoicedesc= int(input("Enter your choice"))
-        if(userchoicedesc in bookrange):
-            print(booklist[userchoicedesc-1])
         
-        elif(userchoicedesc=="11"):
-            print("None")
-            continue
-
-        else:
-            print("Out of range")
-    # converting into CSV files
-        data = [title, booklist[userchoicedesc-1]["author"], booklist[userchoicedesc-1]["description"]]
-        reader=csv.reader(data,delimiter=':', quoting=csv.QUOTE_NONE)
-        
-
-        writer.writerow(reader)
-
-
-
-    
-
-#testcode
- #get image
-        #thumbnail = child.find("img")
-        #print(len(thumbnail))
-        #print(thumbnail)
-       
-
-
-
-        
-    
-    
-    
