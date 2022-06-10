@@ -1,1 +1,4 @@
 .venv
+.env
+data.csv
+index.html

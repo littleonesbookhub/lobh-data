@@ -17,4 +17,8 @@ pip freeze > requirements.txt
 
 and commit requirements.txt to the repository.
 
-## 
+## Running the code
+
+```
+python Imagescrape.py
+```
