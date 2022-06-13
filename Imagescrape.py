@@ -37,7 +37,7 @@ if private_key and public_key and url_endpoint:
 
 
 #read the title and author from excel
-data = pd.read_excel(r'LBH.xlsx')
+data = pd.read_excel(r'LOBH.xlsx')
 df= pd.DataFrame(data,columns=['Title'])
 
 
@@ -78,9 +78,9 @@ def get_book_metadata(soup, parent, title):
     print("The list is complete..Please choose your option.Input 11 to skip", list(bookrange))
     userchoicedesc= int(input("Enter your choice"))
     if(userchoicedesc==11):
-        data = [title, "None", "None", "None"]
-        reader=csv.reader(data, quoting=csv.QUOTE_NONE)
-        return reader
+        data = [title, " ", " ", " "]
+        #reader=csv.reader(data, quoting=csv.QUOTE_NONE)
+        return data
 
     if(userchoicedesc in bookrange):
         print(booklist[userchoicedesc-1])
@@ -108,12 +108,13 @@ def get_book_metadata(soup, parent, title):
         print(image_upload_result)
         image_url = image_upload_result["response"]["url"]
         print(image_url)
-        # image_base64_bin = base64.b64decode(image_base64)
+    else:
+        image_url = image_base64
     data = [title, booklist[userchoicedesc-1]["author"], booklist[userchoicedesc-1]["description"], image_url]
-    reader=csv.reader(data, quoting=csv.QUOTE_NONE)
-    return reader
+    #reader=csv.reader(data, quoting=csv.QUOTE_NONE)
+    return data
 
-with open('data.csv', 'w', encoding='UTF8', newline='') as csv_file:
+with open('data.csv', 'a', encoding='UTF8', newline='') as csv_file:
     writer = csv.writer(csv_file)
     writer.writerow(header)
 
@@ -137,21 +138,12 @@ with open('data.csv', 'w', encoding='UTF8', newline='') as csv_file:
         html_file = open("index.html", "w")
         html_file.write(str(soup))
         html_file.close()
-        #exit()
-
-        #Lists all the books with class ul(openlibrabry)
-        #list_books = soup.find_all("ul", {"class": "list-books"})
-        #if list_books:
-            #first_book = list_books[0]
-            #anchors = first_book.find_all(attrs={"itemprop": "url"})
-            #if len(anchors) > 1:
-                #print(anchors[1].text)
             
         #Lists all the books from Google
         text_encoded = title
         #check
         print(text_encoded)
-        text_encoded = text_encoded.replace(" ", "%20")
+        text_encoded = text_encoded.strip().replace(" ", "%20").replace(",", "%2C").replace("?", "%3F")
         parent = soup.find("div",attrs={"data-async-context": "query:"+text_encoded})
         book_metadata=get_book_metadata(soup, parent, title)
         if(book_metadata!= None):
@@ -161,11 +153,7 @@ with open('data.csv', 'w', encoding='UTF8', newline='') as csv_file:
 
         
 
-    #testcode
-    #get image
-            #thumbnail = child.find("img")
-            #print(len(thumbnail))
-            #print(thumbnail)
+
         
 
 
