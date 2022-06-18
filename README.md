@@ -19,6 +19,12 @@ and commit requirements.txt to the repository.
 
 ## Running the code
 
+To manually annotate the description and image thumbs from Google Books, run the following script:
 ```
 python Imagescrape.py
+```
+
+To automatically annotate the image thumbs and genres from Good Reads, run the following script:
+```
+python good_reads.py
 ```
