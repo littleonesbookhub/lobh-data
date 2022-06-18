@@ -23,7 +23,11 @@ def process_excel(filename, process_row, write_row):
 
     for row_index in range(start_row, num_rows):
         row = excel_df.iloc[row_index].values
-        write_row(process_row(row, row_index))
+        try:
+            write_row(process_row(row, row_index))
+        except:
+            print("Skipping as something went wrong")
+
         time.sleep(5)
 
 def process_row(row, row_index):
