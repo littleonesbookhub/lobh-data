@@ -72,7 +72,7 @@ def process_row(row, row_index):
 
     print(f"genres: {genres}")
 
-    return [row[0], row[1], row[2], row[3], cover_image_url, ";".join(genres)]
+    return [filter_cell(row[0]), filter_cell(row[1]), filter_cell(row[2]), filter_cell(row[3]), cover_image_url, ";".join(genres)]
 
 
 if __name__ == "__main__":
