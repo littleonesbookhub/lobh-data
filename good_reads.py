@@ -1,3 +1,4 @@
+import sys
 from time import sleep
 import pandas as pd
 import csv
@@ -71,13 +72,13 @@ def process_excel(filename, search_fn, extract_fn, write_fn):
             else:
                 write_fn(row)
 
-            sleep(uniform(5, 10))
+            sleep(uniform(30, 60))
         except Exception as e:
             print("Skipping as something went wrong")
             print(e)
 
             write_fn(row)
-            sleep(uniform(5, 10))
+            sleep(uniform(30, 60))
 
 
 def search(search_query):
@@ -85,11 +86,15 @@ def search(search_query):
     http_headers = {
         "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Mobile Safari/537.36"
     }
-    search_page = requests.get(search_url, headers=http_headers)
-    search_soup = BeautifulSoup(search_page.content, "html.parser")
+    search_page_response = requests.get(search_url, headers=http_headers)
+    if search_page_response.status_code == 429:
+        print("Exiting due to 429")
+        sys.exit()
+
+    search_soup = BeautifulSoup(search_page_response.content, "html.parser")
 
     print(f"search_url: {search_url}")
-    print(f"search_page: {search_page}")
+    print(f"search_page: {search_page_response}")
 
     html_file = open("index.html", "w")
     html_file.write(str(search_soup))
@@ -125,9 +130,11 @@ def extract(page_url, row):
         "Upgrade-Insecure-Requests": "1",
         "User-Agent": "Mozilla/5.0 (iPad; CPU OS 13_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/87.0.4280.77 Mobile/15E148 Safari/604.1",
     }
-    book_page = page_url and requests.get(page_url, headers=http_headers)
-    print(f"book_page: {book_page}")
-    book_soup = book_page and BeautifulSoup(book_page.content, "html.parser")
+    book_page_response = page_url and requests.get(page_url, headers=http_headers)
+    print(f"book_page: {book_page_response}")
+    book_soup = book_page_response and BeautifulSoup(
+        book_page_response.content, "html.parser"
+    )
 
     # html_file = open("index.html", "w")
     # html_file.write(str(book_soup))
