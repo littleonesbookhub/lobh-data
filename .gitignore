@@ -3,3 +3,7 @@
 data.csv
 index.html
 output.csv
+
+images*/
+
+.DS_Store
